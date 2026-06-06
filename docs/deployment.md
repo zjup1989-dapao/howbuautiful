@@ -88,12 +88,31 @@ http://localhost:3000/auth/callback
 
 上线后按顺序检查：
 
-1. 首页能打开。
-2. 社区广场和排行榜能看到示例或真实帖子。
-3. 邮箱登录链接能跳回线上 `/profile`。
-4. 登录后能在搭配工作室上传照片。
-5. 保存方案后能发布帖子。
-6. 社区广场能看到刚发布的帖子。
-7. 帖子详情能评论和评分。
+1. 打开 `https://你的-vercel-域名/api/health`，确认：
+
+```json
+{
+  "app": "ok",
+  "environment": {
+    "supabaseUrl": true,
+    "supabaseAnonKey": true,
+    "supabaseServiceRoleKey": true
+  },
+  "supabase": {
+    "configured": true,
+    "databaseReachable": true
+  }
+}
+```
+
+`openAiKey` 在当前 MVP 里可以暂时是 `false`，因为真实 AI 模型调用还没有作为硬依赖接入。
+
+2. 首页能打开。
+3. 社区广场和排行榜能看到示例或真实帖子。
+4. 邮箱登录链接能跳回线上 `/profile`。
+5. 登录后能在搭配工作室上传照片。
+6. 保存方案后能发布帖子。
+7. 社区广场能看到刚发布的帖子。
+8. 帖子详情能评论和评分。
 
 如果邮箱登录仍然提示过期，通常是用了旧邮件链接；重新发送一次，只点最新邮件里的链接。
