@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Camera, CloudUpload, Lock, RefreshCcw, Save, Send, SlidersHorizontal, Upload } from "lucide-react";
+import { Camera, CloudUpload, Lock, Minus, Plus, RefreshCcw, Save, Send, SlidersHorizontal, Upload } from "lucide-react";
 import { getAsset, styleAssets } from "@/lib/assets";
 import { demoRecommendation } from "@/lib/demo-data";
+import { applyTuningToCandidate } from "@/lib/studio-state";
 import type { OutfitCandidate, RecommendationInput, StyleRecommendation } from "@/lib/types";
 import { AssetCard } from "./asset-card";
 import { LookPreview } from "./look-preview";
@@ -33,6 +34,10 @@ export function StudioClient() {
     avoid: "过度甜美和复杂花纹",
   });
   const [selectedAssets, setSelectedAssets] = useState(demoRecommendation.candidates[0].assets);
+  const [tuning, setTuning] = useState({
+    saturation: demoRecommendation.candidates[0].tuning.saturation,
+    formality: demoRecommendation.candidates[0].tuning.formality,
+  });
   const [message, setMessage] = useState("AI 已根据示例资料生成 3 套搭配方案。");
   const [postTitle, setPostTitle] = useState(demoRecommendation.candidates[0].title);
   const [postCaption, setPostCaption] = useState("今天想试试这套 AI 推荐搭配，欢迎给我评分和建议。");
@@ -45,11 +50,11 @@ export function StudioClient() {
   const [loading, setLoading] = useState<"analyze" | "upload" | "save" | "publish" | "">("");
 
   const activeCandidate = useMemo<OutfitCandidate>(() => {
-    return {
-      ...recommendation.candidates[activeLook],
+    return applyTuningToCandidate(recommendation.candidates[activeLook], {
       assets: selectedAssets,
-    };
-  }, [activeLook, recommendation.candidates, selectedAssets]);
+      tuning,
+    });
+  }, [activeLook, recommendation.candidates, selectedAssets, tuning]);
 
   useEffect(() => {
     let active = true;
@@ -134,6 +139,10 @@ export function StudioClient() {
     setRecommendation(data.recommendation);
     setActiveLook(0);
     setSelectedAssets(data.recommendation.candidates[0].assets);
+    setTuning({
+      saturation: data.recommendation.candidates[0].tuning.saturation,
+      formality: data.recommendation.candidates[0].tuning.formality,
+    });
     setPostTitle(data.recommendation.candidates[0].title);
     setMessage("已生成新的 AI 分析和 3 套候选方案。");
   }
@@ -204,7 +213,16 @@ export function StudioClient() {
   function chooseLook(index: number) {
     setActiveLook(index);
     setSelectedAssets(recommendation.candidates[index].assets);
+    setTuning({
+      saturation: recommendation.candidates[index].tuning.saturation,
+      formality: recommendation.candidates[index].tuning.formality,
+    });
     setPostTitle(recommendation.candidates[index].title);
+  }
+
+  function updateTuning(key: "saturation" | "formality", value: number) {
+    setTuning((current) => ({ ...current, [key]: value }));
+    setSavedPlanId("");
   }
 
   function selectAsset(id: string) {
@@ -330,8 +348,8 @@ export function StudioClient() {
             ))}
           </div>
           <div className="mt-6 grid gap-4 md:grid-cols-2">
-            <Range label="色彩饱和度" value={activeCandidate.tuning.saturation} />
-            <Range label="正式度" value={activeCandidate.tuning.formality} />
+            <Range label="色彩饱和度" value={tuning.saturation} onChange={(value) => updateTuning("saturation", value)} />
+            <Range label="正式度" value={tuning.formality} onChange={(value) => updateTuning("formality", value)} />
           </div>
         </section>
 
@@ -391,14 +409,53 @@ function Input({ label, value, onChange }: { label: string; value: string; onCha
   );
 }
 
-function Range({ label, value }: { label: string; value: number }) {
+function Range({ label, value, onChange }: { label: string; value: number; onChange: (value: number) => void }) {
+  function updateValue(event: React.FormEvent<HTMLInputElement>) {
+    onChange(Number(event.currentTarget.value));
+  }
+
+  function step(delta: number) {
+    onChange(Math.max(0, Math.min(100, value + delta)));
+  }
+
   return (
     <label className="block rounded-lg bg-zinc-100 p-4">
-      <span className="flex items-center gap-2 text-sm font-black">
-        <SlidersHorizontal size={16} />
-        {label}
+      <span className="flex items-center justify-between gap-3 text-sm font-black">
+        <span className="flex items-center gap-2">
+          <SlidersHorizontal size={16} />
+          {label}
+        </span>
+        <span className="rounded-full bg-white px-2 py-1 text-xs tabular-nums text-zinc-600">{value}</span>
       </span>
-      <input type="range" defaultValue={value} min={0} max={100} className="mt-3 w-full accent-black" />
+      <input
+        type="range"
+        value={value}
+        min={0}
+        max={100}
+        onInput={updateValue}
+        onChange={updateValue}
+        className="mt-3 w-full accent-black"
+      />
+      <span className="mt-3 grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          aria-label={`${label}减少 5`}
+          onClick={() => step(-5)}
+          className="inline-flex h-9 items-center justify-center gap-2 rounded-full bg-white text-xs font-black transition hover:bg-zinc-200"
+        >
+          <Minus size={14} aria-hidden="true" />
+          -5
+        </button>
+        <button
+          type="button"
+          aria-label={`${label}增加 5`}
+          onClick={() => step(5)}
+          className="inline-flex h-9 items-center justify-center gap-2 rounded-full bg-white text-xs font-black transition hover:bg-zinc-200"
+        >
+          <Plus size={14} aria-hidden="true" />
+          +5
+        </button>
+      </span>
     </label>
   );
 }
