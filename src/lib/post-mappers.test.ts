@@ -5,6 +5,7 @@ describe("mapPostStatsRow", () => {
   it("converts Supabase post_stats rows into community posts", () => {
     const post = mapPostStatsRow({
       id: "post-1",
+      user_id: "user-1",
       title: "真实搭配帖",
       caption: "这是一条来自数据库的搭配文案。",
       image_url: "https://example.com/look.jpg",
@@ -23,6 +24,7 @@ describe("mapPostStatsRow", () => {
 
     expect(post).toEqual({
       id: "post-1",
+      authorId: "user-1",
       title: "真实搭配帖",
       author: "Nora",
       caption: "这是一条来自数据库的搭配文案。",

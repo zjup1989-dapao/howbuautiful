@@ -72,6 +72,7 @@ export type RankablePost = {
 };
 
 export type CommunityPost = RankablePost & {
+  authorId?: string;
   author: string;
   caption: string;
   image: string;

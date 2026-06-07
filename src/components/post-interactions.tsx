@@ -11,8 +11,18 @@ type AuthStatus = {
   email: string | null;
 };
 
-export function PostInteractions({ postId, initialComments }: { postId: string; initialComments: DisplayComment[] }) {
-  const [authStatus, setAuthStatus] = useState<AuthStatus>({ configured: false, authenticated: false, email: null });
+export function PostInteractions({
+  postId,
+  initialComments,
+  initialAuthStatus,
+}: {
+  postId: string;
+  initialComments: DisplayComment[];
+  initialAuthStatus?: AuthStatus;
+}) {
+  const [authStatus, setAuthStatus] = useState<AuthStatus>(
+    initialAuthStatus ?? { configured: false, authenticated: false, email: null },
+  );
   const [comments, setComments] = useState(initialComments);
   const [commentBody, setCommentBody] = useState("");
   const [score, setScore] = useState(5);

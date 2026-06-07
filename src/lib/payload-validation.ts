@@ -33,3 +33,18 @@ export function validatePostPayload(payload: Record<string, unknown> | null): Va
 
   return { ok: true };
 }
+
+export function validatePostUpdatePayload(payload: Record<string, unknown> | null): ValidationResult {
+  if (
+    !payload?.title ||
+    !payload.caption ||
+    typeof payload.title !== "string" ||
+    typeof payload.caption !== "string" ||
+    !payload.title.trim() ||
+    !payload.caption.trim()
+  ) {
+    return { ok: false, error: "更新帖子需要标题和文案。" };
+  }
+
+  return { ok: true };
+}

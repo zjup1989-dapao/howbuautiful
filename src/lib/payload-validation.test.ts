@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { validateOutfitPlanPayload, validatePostPayload } from "./payload-validation";
+import { validateOutfitPlanPayload, validatePostPayload, validatePostUpdatePayload } from "./payload-validation";
 
 describe("validateOutfitPlanPayload", () => {
   it("accepts a complete outfit plan payload", () => {
@@ -37,5 +37,18 @@ describe("validatePostPayload", () => {
 
   it("accepts valid post content", () => {
     expect(validatePostPayload({ title: "通勤搭配", caption: "今天的搭配灵感", aiScore: 88 }).ok).toBe(true);
+  });
+});
+
+describe("validatePostUpdatePayload", () => {
+  it("accepts title and caption updates", () => {
+    expect(validatePostUpdatePayload({ title: "新标题", caption: "新的搭配文案" })).toEqual({ ok: true });
+  });
+
+  it("rejects empty update content", () => {
+    expect(validatePostUpdatePayload({ title: " ", caption: "新的搭配文案" })).toEqual({
+      ok: false,
+      error: "更新帖子需要标题和文案。",
+    });
   });
 });

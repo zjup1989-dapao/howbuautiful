@@ -1,15 +1,18 @@
 import { notFound } from "next/navigation";
 import { PageShell } from "@/components/site-shell";
 import { PostInteractions } from "@/components/post-interactions";
+import { PostOwnerActions } from "@/components/post-owner-actions";
 import { getPostComments } from "@/lib/comments-data";
 import { getCommunityPost } from "@/lib/posts-data";
+import { getCurrentUser } from "@/lib/supabase-server";
 
 export default async function PostDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const post = await getCommunityPost(id);
   if (!post) notFound();
 
-  const comments = await getPostComments(id);
+  const [comments, user] = await Promise.all([getPostComments(id), getCurrentUser()]);
+  const isOwner = Boolean(user && post.authorId === user.id);
 
   return (
     <PageShell>
@@ -28,7 +31,16 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
             <Stat label="用户评分" value={post.averageUserScore.toFixed(1)} />
             <Stat label="评论" value={String(post.commentCount)} />
           </div>
-          <PostInteractions postId={post.id} initialComments={comments} />
+          {isOwner ? <PostOwnerActions postId={post.id} title={post.title} caption={post.caption} /> : null}
+          <PostInteractions
+            postId={post.id}
+            initialComments={comments}
+            initialAuthStatus={{
+              configured: true,
+              authenticated: Boolean(user),
+              email: user?.email ?? null,
+            }}
+          />
         </div>
       </article>
     </PageShell>

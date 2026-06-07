@@ -2,6 +2,7 @@ import type { CommunityPost } from "./types";
 
 export type PostStatsRow = {
   id: string;
+  user_id?: string | null;
   title: string;
   caption: string;
   image_url: string;
@@ -19,6 +20,7 @@ export type PostStatsRow = {
 export function mapPostStatsRow(row: PostStatsRow): CommunityPost {
   return {
     id: row.id,
+    authorId: row.user_id ?? undefined,
     title: row.title,
     author: row.author_name || row.profiles?.display_name || "匿名用户",
     caption: row.caption,

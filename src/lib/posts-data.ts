@@ -26,7 +26,7 @@ export async function getCommunityPost(id: string): Promise<CommunityPost | null
   const { data, error } = await supabase
     .from("post_stats")
     .select(
-      "id,title,caption,image_url,tags,ai_score,average_user_score,comment_count,created_at,author_name,plan_title",
+      "id,user_id,title,caption,image_url,tags,ai_score,average_user_score,comment_count,created_at,author_name,plan_title",
     )
     .eq("id", id)
     .single();
