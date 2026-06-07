@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mapProfilePlanRow, mapProfilePostRow, mapProfileUploadRow } from "./profile-data";
+import { mapProfilePlanDetailRow, mapProfilePlanRow, mapProfilePostRow, mapProfileUploadRow } from "./profile-data";
 
 describe("profile data mappers", () => {
   it("maps upload rows for the profile archive", () => {
@@ -56,5 +56,71 @@ describe("profile data mappers", () => {
       commentCount: 8,
       createdAt: "2026-06-07T11:00:00.000Z",
     });
+  });
+
+  it("maps plan detail rows into a preview candidate", () => {
+    const detail = mapProfilePlanDetailRow({
+      id: "plan-1",
+      title: "Amber Core 通勤高光",
+      ai_score: 94,
+      preview_image_url: "https://example.com/plan.jpg",
+      selected_assets: {
+        hair: "hair-sleek-bob",
+        top: "top-amber-knit",
+        bottom: "bottom-ink-trousers",
+        outerwear: "outer-cream-blazer",
+        shoes: "shoes-black-loafer",
+        accessory: "acc-silver-chain",
+      },
+      tuning: {
+        silhouette: "修身直线",
+        saturation: 86,
+        formality: 42,
+      },
+      recommendation: {
+        strengths: ["肩颈线条清晰"],
+        improvements: ["增加层次"],
+        colorAdvice: "琥珀色更提气色。",
+        styleKeywords: ["通勤", "轻熟"],
+        overallScore: 94,
+        candidates: [
+          {
+            id: "look-01",
+            title: "Amber Core 通勤高光",
+            score: 94,
+            reason: "用琥珀色提升亲和力。",
+            tags: ["通勤"],
+            assets: {
+              hair: "hair-sleek-bob",
+              top: "top-amber-knit",
+              bottom: "bottom-ink-trousers",
+              outerwear: "outer-cream-blazer",
+              shoes: "shoes-black-loafer",
+              accessory: "acc-silver-chain",
+            },
+            tuning: {
+              silhouette: "修身直线",
+              saturation: 72,
+              formality: 82,
+            },
+          },
+        ],
+      },
+      created_at: "2026-06-07T12:00:00.000Z",
+    });
+
+    expect(detail.previewCandidate).toMatchObject({
+      id: "plan-1",
+      title: "Amber Core 通勤高光",
+      score: 94,
+      reason: "用琥珀色提升亲和力。",
+      tags: ["通勤", "轻熟"],
+      tuning: {
+        silhouette: "修身直线",
+        saturation: 86,
+        formality: 42,
+      },
+    });
+    expect(detail.selectedAssetIds.top).toBe("top-amber-knit");
   });
 });

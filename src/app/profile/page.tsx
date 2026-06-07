@@ -85,7 +85,7 @@ export default async function ProfilePage() {
                 >
                   <div className="grid gap-4 md:grid-cols-3">
                     {archive.plans.map((plan) => (
-                      <article key={plan.id} className="rounded-lg border border-black/10 bg-white p-4 shadow-sm">
+                      <Link key={plan.id} href={`/profile/plans/${plan.id}`} className="rounded-lg border border-black/10 bg-white p-4 shadow-sm transition hover:border-black">
                         <div className="grid aspect-[4/3] place-items-center overflow-hidden rounded-md bg-zinc-100">
                           {plan.previewImage ? (
                             <img src={plan.previewImage} alt={plan.title} className="size-full object-cover" />
@@ -98,7 +98,7 @@ export default async function ProfilePage() {
                           <span className="text-xs font-black uppercase tracking-[0.18em] text-zinc-500">AI Score</span>
                           <span className="text-3xl font-black">{plan.aiScore}</span>
                         </div>
-                      </article>
+                      </Link>
                     ))}
                   </div>
                 </ArchiveSection>
