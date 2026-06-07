@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Camera, CloudUpload, Lock, RefreshCcw, Save, Send, SlidersHorizontal, Upload } from "lucide-react";
 import { getAsset, styleAssets } from "@/lib/assets";
 import { demoRecommendation } from "@/lib/demo-data";
@@ -16,6 +17,7 @@ type AuthStatus = {
 };
 
 export function StudioClient() {
+  const router = useRouter();
   const [photoUrl, setPhotoUrl] = useState("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [uploadId, setUploadId] = useState("");
@@ -195,7 +197,8 @@ export function StudioClient() {
       return;
     }
 
-    setMessage(`发布成功：${data.post.title ?? postTitle}`);
+    setMessage(`发布成功：${data.post.title ?? postTitle}，正在打开帖子详情。`);
+    router.push(`/community/${data.post.id}`);
   }
 
   function chooseLook(index: number) {
